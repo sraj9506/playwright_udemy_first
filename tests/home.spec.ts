@@ -16,6 +16,9 @@ test.describe('Home', () => {
         //open url
         await page.goto('https://practice.sdetunicorns.com');
 
+        //Ensure that there is no hash attached to the url
+        await expect(page).not.toHaveURL(/.*#get-started/);
+
         //click the button
         await page.locator('#get-started').click();
         //locators doesn't need to be awaited here we use because click method return promise
