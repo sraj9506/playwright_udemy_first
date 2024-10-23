@@ -136,9 +136,8 @@ test.describe('Home', () => {
         expect((await rec_post.elementHandles()).length).toEqual(5);
 
         //Verify the title's length of each post
-        for (const element of await rec_post.elementHandles()) {
+        for (const element of await rec_post.elementHandles()) 
             expect((await element.innerText()).length).toBeGreaterThanOrEqual(10);
-        }
     })
     test('Upload file', async ({ page }) => {
         //go to url
