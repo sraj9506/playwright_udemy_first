@@ -176,8 +176,17 @@ test.describe('Home', () => {
         //submit file
         await page.locator('#upload_1').click();
 
-        //verify file uploaded or not
-        await expect(page.locator('#wfu_messageblock_header_1_1')).toContainText('uploaded successfully');
+        //Hardcoded Timeout - Not Recommended
+        //await page.waitForTimeout(5000);
+        
+        //get the alert element
+        const alert=page.locator('#wfu_messageblock_header_1_1');
+
+        //Conditional Timeout - Recommended
+        //await alert.waitFor({state:'visible',timeout:10000});
+
+        //verify file uploaded or not with assertion timeout
+        await expect(alert).toContainText('uploaded successfully',{timeout: 10000});
     })
 
 })
