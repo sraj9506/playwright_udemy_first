@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test"
+const path = require('path');
 test.describe('Home', () => {
     test('Open Home Page And Verify Title', async ({ page }) => {
         //open url
@@ -72,7 +73,7 @@ test.describe('Home', () => {
     })
     test('Verify Specific Navigation Link And Print The All Navigation Links', async ({ page }) => {
         //link names which will verified further
-        const navTexts=["Home","About","Shop","Blog","Contact","My Account"]
+        const navTexts = ["Home", "About", "Shop", "Blog", "Contact", "My Account"]
 
         //open url
         await page.goto("https://practice.sdetunicorns.com");
@@ -91,16 +92,16 @@ test.describe('Home', () => {
     test('Access Contact Page, Fill The Form And Verification Of Success Message', async ({ page }) => {
 
         //input data
-        const input=["Virat","virat18@gmail.com","1234567890","Testing Message"];
+        const input = ["Virat", "virat18@gmail.com", "1234567890", "Testing Message"];
 
         //success message to be verfied
-        const msg="Thanks for contacting us! We will be in touch with you shortly";
+        const msg = "Thanks for contacting us! We will be in touch with you shortly";
 
         //go to contact page
         await page.goto("https://practice.sdetunicorns.com/contact/");
 
         //access the form elements
-        const frmElems=page.locator('#evf-form-277 label[for*="field_"], #evf-form-277 [id*="submit"]');
+        const frmElems = page.locator('#evf-form-277 label[for*="field_"], #evf-form-277 [id*="submit"]');
 
         //fill the form
         for (let index = 0; index < (await frmElems.elementHandles()).length - 1; index++) {
@@ -111,19 +112,25 @@ test.describe('Home', () => {
         await frmElems.last().click();
 
         //get alert message
-        const alert=page.locator('[role="alert"]');
-        
+        const alert = page.locator('[role="alert"]');
+
+        //soft assertion : below steps are works even if this asserion fails
+        expect.soft((await alert.allInnerTexts).toString()).toEqual(msg);
+
+        //verify soft assertion
+        expect(test.info().errors.length).toEqual(0);
+
         //verify the message
         expect((await alert.allInnerTexts()).toString().trim()).toEqual(msg);
 
-    }) 
+    })
     test('Go to Blog Page, Count Length Of Recent Posts And Length Of Their Title', async ({ page }) => {
-        
+
         //go to contact page
         await page.goto("https://practice.sdetunicorns.com/blog/");
 
         //Access the recent posts block
-        const rec_post=page.locator("#recent-posts-3 li");
+        const rec_post = page.locator("#recent-posts-3 li");
 
         //Verify the length of recent post
         expect((await rec_post.elementHandles()).length).toEqual(5);
@@ -133,5 +140,44 @@ test.describe('Home', () => {
             expect((await element.innerText()).length).toBeGreaterThanOrEqual(10);
         }
     })
-      
+    test('Upload file', async ({ page }) => {
+        //go to url
+        await page.goto("https://practice.sdetunicorns.com/cart/");
+
+        //get the file path which need to be uploaded
+        const filePath = path.join(__dirname, '../data/logo.jpg');
+
+        //upload the file
+        await page.setInputFiles('#upfile_1', filePath);
+
+        //submit file
+        await page.locator('#upload_1').click();
+
+        //verify file uploaded or not
+        await expect(page.locator('#wfu_messageblock_header_1_1')).toContainText('uploaded successfully');
+    })
+
+    test('Upload File After Dom Manipulation', async ({ page }) => {
+        //go to url
+        await page.goto("https://practice.sdetunicorns.com/cart/");
+
+        //manipulate dom
+        await page.evaluate(()=>{
+            const selector=document.querySelector('#upfile_1');
+            selector?selector.className='':'';
+        })
+
+        //get the file path which need to be uploaded
+        const filePath = path.join(__dirname, '../data/logo.jpg');
+
+        //upload the file
+        await page.setInputFiles('#upfile_1', filePath);
+
+        //submit file
+        await page.locator('#upload_1').click();
+
+        //verify file uploaded or not
+        await expect(page.locator('#wfu_messageblock_header_1_1')).toContainText('uploaded successfully');
+    })
+
 })
